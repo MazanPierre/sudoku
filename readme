@@ -1,0 +1,71 @@
++-----------------------------------------------------------------------------------------------------+
+|                                           Table des matières                                	      |
++-----------------------------------------------------------------------------------------------------+
+	-	Introduction
+	-	Prérequis Système
+	-	Utilisation
+	-	Option du Sudoku
+
+
++-----------------------------------------------------------------------------------------------------+
+|                                           Introduction                                       	      |
++-----------------------------------------------------------------------------------------------------+
+
+	Le programme permet de jouer au sudoku sans papier ni crayon directement en console avec une 
+	interface sous forme de grille dans un terminal. Plusieurs types de grilles sont disponibles 
+	(4x4, 6x6, 8x8, 9x9), et un nombre de coups maximum est fixés.
+
+
++-----------------------------------------------------------------------------------------------------+
+|                                           Prérequis système                                         |
++-----------------------------------------------------------------------------------------------------+
+
+	Le programme fonctionne sur toutes les machines Unix et Windows.
+	Pour génerer l'executable, executer le script de makefile dans un terminal. Il est également
+	possible de le faire manuellement sous Unix en executant la commande :
+		gcc -Wall sudoku.c
+
+	Qui génerera un fichier executable a.out, ou bien sur windows avec un compilateur pour générer
+	un fichier sudoku.exe
+
++-----------------------------------------------------------------------------------------------------+
+|                                          Utilisation                                         	      |
++-----------------------------------------------------------------------------------------------------+
+
+	Lancer le programme en appelant l'executable, il peut être suivis des options possibles 
+	(expliqués dans la partie dédiée plus bas) 
+	Exemple : ./sudoku.exe -h (Windows)
+	          ./a.out -h (linux)
+
+	Pour jouer, entrer des propositions au format X Y V
+	X est l'abscisse
+	Y est l'ordonnée
+	V est la lettre
+	
+	Pour revenir a un etat ulterieur entrer la lettre chevron ouvert '<'
+
+	Le programme refuse les propositions incorrectes. Le jeu s'arrête soit quand la grille est 
+	remplie, soit quand le joueur a dépassé le nombre de propositions autorisées.
+
+
++-----------------------------------------------------------------------------------------------------+
+|                                          Options du Sudoku                                          |
++-----------------------------------------------------------------------------------------------------+
+
+        -h Affiche sur le flux standard de sortie une aide et s'arrete.
+
+        -g Ecrit sur le flux standard de sortie les grilles disponibles et se termine.
+
+        -s Ecrit sur le flux standard de sortie les grilles remplies disponibles et se termine.
+
+        -t <taille de grille>
+                 Choix de taille de la grille : 9x9, 8x8, 6x6, 4x4, rand
+                 Lors d'une partie, la valeur "rand" permet de choisir une grille aux hasard
+                 Lorsque l'option -s ou -g est utilisee, alors toutes les grilles s'affichent
+                 Si l'argument est omis alors la grille par defaut est 9x9
+
+        -u Permet un affichage des grilles de sudoku plus esthetique.
+                 Attention : Si cette option est ajoutee alors les grilles de Sudoku utiliseront des
+                 caractere unicode. Ce type de caractere n'est pas supporter par tout les terminaux.
+	
+	caractere unicode. Ce type de caractere n'est pas supporter par tout les terminaux.
