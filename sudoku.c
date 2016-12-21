@@ -10,6 +10,7 @@
 #include "conversion.h"
 #include "params.h"
 #include "compteur.h"
+#include "ui.h"
 
 /*
 Fonction : jouerGrille
