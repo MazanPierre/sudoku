@@ -43,6 +43,8 @@
 	V est la lettre
 	
 	Pour revenir a un etat ulterieur entrer la lettre chevron ouvert '<'
+    Pour sauvegarder la partie à son état actuel entrée '!s'
+    Pour charger la partie précédement sauvegarder '!c'
 
 	Le programme refuse les propositions incorrectes. Le jeu s'arrête soit quand la grille est 
 	remplie, soit quand le joueur a dépassé le nombre de propositions autorisées.

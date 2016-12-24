@@ -113,7 +113,7 @@ void pileCoup_reset(PileCoup *pileCoup)
 /** Si le fichier n'existe pas, il est créé automatiquement **/
 /** Prend en paramètre la pile qui contient l'historique des coups précédents (historique)
 	ainsi que le nombre de coups restants **/
-void sauvegarder(PileCoup *historique, int nbCoups, int tailleGrille, int indexGrille){
+int sauvegarder(PileCoup *historique, int nbCoups, int tailleGrille, int indexGrille){
 
 	FILE* fichier = NULL;
 	ElementCoup element;
@@ -136,14 +136,16 @@ void sauvegarder(PileCoup *historique, int nbCoups, int tailleGrille, int indexG
 		}
 
         fclose(fichier);
+        return 1;
 	}
-
+    
+    return 0;
 }
 
 /** Cette procédure charge les données d'une partie sauvegardée depuis un fichier texte **/
 /** Prend en paramètre la pile qui contient l'historique des coups précédents (historique)
 	ainsi que le nombre de coups restants, ces variables contiendrons les nouvelles valeurs chargées **/
-void charger(PileCoup *historique, int *nbCoups, int *tailleGrille, int *indexGrille) {
+int charger(PileCoup *historique, int *nbCoups, int *tailleGrille, int *indexGrille) {
 
 	FILE* fichier = NULL;
 	ElementCoup element;
@@ -171,5 +173,9 @@ void charger(PileCoup *historique, int *nbCoups, int *tailleGrille, int *indexGr
         } while (fin); /// Continue tant que fgetc n'a pas retourné EOF (fin de fichier)
 
         fclose(fichier);
+        
+        return 1;
     }
+    
+    return 0;
 }

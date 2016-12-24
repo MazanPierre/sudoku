@@ -4,7 +4,7 @@ sudoku-txt: TsudokuData.o params.o file.o pileCoup.o pileSudoku.o conversion.o a
 	gcc -o sudoku-txt pileCoup.o compteur.o affichage.o file.o conversion.o pileSudoku.o params.o sudoku.o ui-txt.o -lm
 
 sudoku-curses: TsudokuData.o params.o file.o pileCoup.o pileSudoku.o conversion.o affichage.o ui-curses.o compteur.o sudoku.o
-	gcc -o sudoku-curses pileCoup.o compteur.o affichage.o file.o conversion.o pileSudoku.o params.o sudoku.o ui-curses.o -lm
+	gcc -o sudoku-curses pileCoup.o compteur.o affichage.o file.o conversion.o pileSudoku.o params.o sudoku.o ui-curses.o -lm -lncurses
 
 affichage.o: affichage.c affichage.h
 	gcc -o affichage.o -c affichage.c -lm -O
@@ -37,7 +37,7 @@ ui-txt: ui-txt.c ui.h TsudokuData.h
 	gcc -c ui-txt.c
 
 ui-curses: ui-curses.c ui.h TsudokuData.h
-	gcc -c ui-curses.c
+	gcc -c ui-curses.c -lncurses
 
 clean:
 	rm -f *.o core

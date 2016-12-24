@@ -14,10 +14,9 @@ struct _Tui {
 };
 
 struct _Tjeu {
-
 };
 
-Tui *ui_new(TsudokuData *sudokuData, int indexGrille)
+Tui *ui_new(int indexGrille)
 {
   Tui *ui = malloc(sizeof(Tui));
   
@@ -47,18 +46,14 @@ void ui_afficherGrille(Tui *ui, Tjeu *jeu)
 	int v = 0;
     int i = 0;
     
-
-    // TODO remove
     PileCoup *pileCoup = pileCoup_create();
-    int tailleGrille = 9;
+    int tailleGrille = conversion_DBTypeToInt(sudokuData->type);
     int nbPropositionJoue = 0;
     int nbPropositionAutorise = (int)(compteurCaseVide(sudokuData->init, tailleGrille) * 2);
     int unicode = 0;
     int erreurProposition = 0;
     int nbErreur = 0;
     int continuer = 1;
-    
-    
 
 
     strcpy(grilleData, sudokuData->init);

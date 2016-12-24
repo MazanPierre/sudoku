@@ -24,7 +24,7 @@ ElementCoup pileCoup_get(PileCoup *pileCoup, int index);
 int pileCoup_count(PileCoup *pileCoup);
 int pileCoup_vide(PileCoup *pileCoup);
 void pileCoup_reset(PileCoup *pileCoup);
-void sauvegarder(PileCoup *pileCoup, int nbCoups, int tailleGrille, int indexGrille);
-void charger(PileCoup *pileCoup, int *nbCoups, int *tailleGrille, int *indexGrille);
+int sauvegarder(PileCoup *pileCoup, int nbCoups, int tailleGrille, int indexGrille);
+int charger(PileCoup *pileCoup, int *nbCoups, int *tailleGrille, int *indexGrille);
 
 #endif // PILECOUP_H

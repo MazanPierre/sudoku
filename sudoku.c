@@ -20,8 +20,6 @@ Traite chaque option et redirige l'utilisateur vers la bonne fonction
 
 int main(int argv, char *argc[])
 {
-  PileSudoku *pileSudoku = NULL;
-  TsudokuData *sudokuData = NULL;
   char *paramT = valueFromArg(argv, argc, "t", "9x9");
   int paramH = valueExistInParam(argv, argc, "h");
   int paramG = valueExistInParam(argv, argc, "g");
@@ -74,14 +72,6 @@ int main(int argv, char *argc[])
         }
         else
         {
-          pileSudoku = chargerSudokuDB("sudoku-db.dat");
-
-          if(pileSudoku == NULL)
-          {
-            printf("Erreur lors de la lecture du fichier");
-          }
-          else
-          {
             if(tailleGrille == 9) {
               indexGrille = 6 + rand() % 2;
             } else if(tailleGrille == 8) {
@@ -93,17 +83,12 @@ int main(int argv, char *argc[])
             } else if(tailleGrille == -1){
               indexGrille = rand() % 8;
             }
-
-            sudokuData = pileSud_get(pileSudoku, indexGrille);
             
-            Tui *ui = ui_new(sudokuData, indexGrille);
+            Tui *ui = ui_new(indexGrille);
             Tjeu *jeu = NULL;
             ui_afficherGrille(ui, jeu);
             ui_free(ui);
 
-            dechargerSudoku(pileSudoku);
-
-          }
         }
       }
     }
