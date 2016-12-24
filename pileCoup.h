@@ -6,7 +6,8 @@
 typedef struct _ElementCoup{
      char abscisse;
      char ordonnee;
-     char valeur;
+     char valeurPrecedente;
+     char valeurSuivante;
 
      struct _ElementCoup *coupPrecedent;
 } ElementCoup;
@@ -16,10 +17,14 @@ typedef struct _PileCoup{
 } PileCoup;
 
 PileCoup *pileCoup_create();
-void pileCoup_empile(PileCoup *pileCoup, char abscisse, char ordonnee, char coupJouee);
+void pileCoup_empile(PileCoup *pileCoup, char abscisse, char ordonnee, char valeurPrecedente, char valeurSuivante);
 void pileCoup_free(PileCoup *pileCoup);
 ElementCoup pileCoup_depile(PileCoup *pileCoup);
+ElementCoup pileCoup_get(PileCoup *pileCoup, int index);
 int pileCoup_count(PileCoup *pileCoup);
 int pileCoup_vide(PileCoup *pileCoup);
+void pileCoup_reset(PileCoup *pileCoup);
+void sauvegarder(PileCoup *pileCoup, int nbCoups, int tailleGrille, int indexGrille);
+void charger(PileCoup *pileCoup, int *nbCoups, int *tailleGrille, int *indexGrille);
 
 #endif // PILECOUP_H
