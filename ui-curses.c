@@ -7,7 +7,8 @@
 #include "pileCoup.h"
 #include "ui.h"
 
-#define KEY_ENTER 10
+#define KEY_ENTER   10
+#define KEY_ESCAPE  27
 
 typedef struct _win_border_struct {
 	chtype 	ls, rs, ts, bs, 
@@ -29,17 +30,19 @@ void create_box(WIN *win, bool flag);
 struct _Tui {
   PileSudoku *pileSudoku;
   int indexGrille;
+  int chargerGrille;
 };
 
 struct _Tjeu {
 };
 
-Tui *ui_new(int indexGrille)
+Tui *ui_new(int indexGrille, int chargerGrille)
 {
   Tui *ui = malloc(sizeof(Tui));
   
   ui->pileSudoku = chargerSudokuDB("sudoku-db.dat");
   ui->indexGrille = indexGrille;
+  ui->chargerGrille = chargerGrille;
   
   return ui;
 }
@@ -74,16 +77,103 @@ void draw_borders(WINDOW *screen) {
   }
 }
 
+void valeurJouable(char *solution, char *grilleData, int tailleGrille, int testX, int testY)
+{
+    // Déclaration des variables
+    int regionTailleX = 0, regionTailleY = 0;
+    int i = 0;
+    int x = 0, y = 0;
+    int startX = 0, startY = 0;
+    int jouable = 0;
+    int indexSolution = 0;
+    
+    // Initialise la solution
+    solution[0] = 0;
+    
+    // Determine la taille des regions
+    switch(tailleGrille) {
+        case 4:
+            regionTailleX = 2;
+            regionTailleY = 2;
+            break;
+        case 6:
+            regionTailleX = 3;
+            regionTailleY = 2;
+            break;
+        case 8:
+            regionTailleX = 4;
+            regionTailleY = 2;
+            break;
+        case 9:
+            regionTailleX = 3;
+            regionTailleY = 3;
+            break;
+    }
+    
+    
+    // Determine premiere case de la region
+    startX = (int)(testX / regionTailleX) * regionTailleX;
+    startY = (int)(testY / regionTailleY) * regionTailleY;
+    
+    
+    // Tester les nombres 'i'
+    for(i = 'A'; i < 'A' + tailleGrille; i++) {
+        jouable = 1;
+        
+        // Verifier la ligne
+        for(x = 0; x < tailleGrille; x++) {
+            
+            
+            if(grilleData[x + testY * tailleGrille] == i)
+            {
+                jouable = 0;
+            }
+        }
+        
+        if(jouable)
+        {
+            // Verifie la colonne
+            for(y = 0; y < tailleGrille; y++) {
+                if(grilleData[testX + y * tailleGrille] == i)
+                {
+                    jouable = 0;
+                }
+            }
+            
+            if(jouable)
+            {
+                // Verifie la regionTailleX
+                for(x = 0; x < regionTailleX; x++) {
+                    for(y = 0; y < regionTailleY; y++) {
+                        if(grilleData[x + startX + (y + startY) * tailleGrille] == i)
+                        {
+                            jouable = 0;
+                        }
+                    }
+                }
+                
+                if(jouable)
+                {
+                    solution[indexSolution] = i;
+                    solution[indexSolution + 1] = 0;
+                    indexSolution++;
+                }
+            }
+        }
+    }
+}
+
 enum {MODE_JOUER, MODE_RETOUR, MODE_VOIR, MODE_SAUVEGARDER, MODE_CHARGER, NB_CASE_TAB};
 
 void ui_afficherGrille(Tui *ui, Tjeu *jeu)
 {
-  TsudokuData *sudokuData = pileSud_get(ui->pileSudoku, ui->indexGrille);
+  TsudokuData *sudokuData = NULL;
   PileCoup *pileCoup = pileCoup_create();
   char screenOutput[2048] = "";
   char grilleData[81] = "";
-  int tailleGrille = conversion_DBTypeToInt(sudokuData->type);
-  int nbPropositionAutorise = (int)(compteurCaseVide(sudokuData->init, tailleGrille) * 2);
+  int tailleGrille = 0;
+  int nbPropositionAutorise = 0;
+  int nbPropositionJoue = 0;
   int parent_x, parent_y, new_x, new_y;
   int menu_width = 30;
   int score_size = 3;
@@ -98,13 +188,37 @@ void ui_afficherGrille(Tui *ui, Tjeu *jeu)
   int charX, charY;
   int startGX, startGY;
   int entreeX, entreeY, entreeV;
+  int nbCaseHistorique;
   int x, y, v;
   int erreurProposition = 0;
   int unicode = 0;
   int continuer = 1;
   char charCoche = ' ';
+  char solution[10];
   
-  strcpy(grilleData, sudokuData->init);
+  if(ui->chargerGrille) {
+    sudokuData = pileSud_get(ui->pileSudoku, ui->indexGrille);
+    strcpy(grilleData, sudokuData->init);
+    tailleGrille = conversion_DBTypeToInt(sudokuData->type);
+    nbPropositionAutorise = (int)(compteurCaseVide(sudokuData->init, tailleGrille) * 2);
+    
+  } else {
+    pileCoup_charger(pileCoup, &nbPropositionJoue, &tailleGrille, &(ui->indexGrille));
+    sudokuData = pileSud_get(ui->pileSudoku, ui->indexGrille);
+    strcpy(grilleData, sudokuData->init);
+    nbPropositionAutorise = (int)(compteurCaseVide(sudokuData->init, tailleGrille) * 2);
+    
+    ElementCoup elementTemp;
+    nbCaseHistorique = pileCoup_count(pileCoup);
+
+    for(i = nbCaseHistorique - 1; i >= 0; i--) {
+        elementTemp = pileCoup_get(pileCoup, i);
+        grilleData[elementTemp.abscisse + elementTemp.ordonnee * tailleGrille] = elementTemp.valeurSuivante;
+    }
+    
+  }
+  
+  
   
   entreeMenu[MODE_JOUER] = "Jouer un coup";
   entreeMenu[MODE_RETOUR] = "Coup précédent";
@@ -191,7 +305,10 @@ void ui_afficherGrille(Tui *ui, Tjeu *jeu)
     {
         if(modeMenu == MODE_JOUER) {
             mvwprintw(menu, NB_CASE_TAB + 3, 1, "X:[%c] Y:[%c] V:[%c]", entreeX, entreeY, entreeV);
+        } else if(modeMenu == MODE_VOIR) {
+            mvwprintw(menu, NB_CASE_TAB + 3, 1, "X:[%c] Y:[%c]", entreeX, entreeY);
         }
+        
     }
     else
     {
@@ -200,7 +317,7 @@ void ui_afficherGrille(Tui *ui, Tjeu *jeu)
     }
     
     // dessinner les stats
-    mvwprintw(score, 1, 1, "Score [0]");
+    //mvwprintw(score, 1, 1, "Score [0]");
     
     mvwprintw(menu, NB_CASE_TAB + 2, 1, "%d %d", ch, modeMenuEtape);
     
@@ -215,53 +332,101 @@ void ui_afficherGrille(Tui *ui, Tjeu *jeu)
     if(modeMenuActif) {
         
         if(modeMenu == MODE_JOUER) {
-            if(modeMenuEtape == 0) {
-                if(ch >= 'A' && ch <= 'A' + tailleGrille) {
-                    entreeX = ch;
-                    modeMenuEtape++;
-                }
-                if(ch >= 'a' && ch <= 'a' + tailleGrille) {
-                    entreeX = ch - 'a' + 'A';
-                    modeMenuEtape++;
-                }
-            }
-            else if(modeMenuEtape == 1) {
-                if(ch >= '1' && ch <= '1' + tailleGrille) {
-                    entreeY = ch;
-                    modeMenuEtape++;
-                }
-                if(ch >= 113 && ch <= 113 + tailleGrille) {
-                    entreeY = ch - 113 + '1';
-                    modeMenuEtape++;
-                }
-            }
-            else if(modeMenuEtape == 2) {
-                if(ch >= 'A' && ch <= 'A' + tailleGrille) {
-                    entreeV = ch;
-                    modeMenuActif = 0;
-                }
-                if(ch >= 'a' && ch <= 'a' + tailleGrille) {
-                    entreeV = ch - 'a' + 'A';
-                    modeMenuActif = 0;
-                }
-                if(!modeMenuActif) {
-                    x = entreeX - 'A';
-                    y = tailleGrille - (entreeY - '0');
-                    v = entreeV;
-
-                    if(!erreurProposition) {
-                      if(sudokuData->init[x + y * tailleGrille] == '.') {
-                        pileCoup_empile(pileCoup, x, y, grilleData[x + y * tailleGrille], v);
-                        grilleData[x + y * tailleGrille] = v;
-                      } else {
-                        printf("/!\\ Vous ne pouvez pas modifier cette case!\n");
-                        erreurProposition = 1;
-                      }
+            if(ch == KEY_ESCAPE) {
+                //modeMenuActif = 0;
+            } else {
+                if(modeMenuEtape == 0) {
+                    if(ch >= 'A' && ch < 'A' + tailleGrille) {
+                        entreeX = ch;
+                        modeMenuEtape++;
                     }
-                    modeMenuEtape++;
+                    if(ch >= 'a' && ch < 'a' + tailleGrille) {
+                        entreeX = ch - 'a' + 'A';
+                        modeMenuEtape++;
+                    }
                 }
-                
-            } 
+                else if(modeMenuEtape == 1) {
+                    if(ch >= '1' && ch < '1' + tailleGrille) {
+                        entreeY = ch;
+                        modeMenuEtape++;
+                    }
+                    if(ch >= 113 && ch < 113 + tailleGrille) {
+                        entreeY = ch - 113 + '1';
+                        modeMenuEtape++;
+                    }
+                }
+                else if(modeMenuEtape == 2) {
+                    if(ch >= 'A' && ch < 'A' + tailleGrille) {
+                        entreeV = ch;
+                        modeMenuActif = 0;
+                    }
+                    if(ch >= 'a' && ch < 'a' + tailleGrille) {
+                        entreeV = ch - 'a' + 'A';
+                        modeMenuActif = 0;
+                    }
+                    if(!modeMenuActif) {
+                        x = entreeX - 'A';
+                        y = tailleGrille - (entreeY - '0');
+                        v = entreeV;
+
+                        if(!erreurProposition) {
+                          if(sudokuData->init[x + y * tailleGrille] == '.') {
+                            pileCoup_empile(pileCoup, x, y, grilleData[x + y * tailleGrille], v);
+                            grilleData[x + y * tailleGrille] = v;
+                          } else {
+                            printf("/!\\ Vous ne pouvez pas modifier cette case!\n");
+                            erreurProposition = 1;
+                          }
+                        }
+                        modeMenuEtape++;
+                        nbPropositionJoue++;
+                    }
+                } 
+            }
+        } else if(modeMenu == MODE_VOIR) {
+            if(ch == KEY_ESCAPE) {
+                //modeMenuActif = 0;
+            } else {
+                if(modeMenuEtape == 0) {
+                    if(ch >= 'A' && ch < 'A' + tailleGrille) {
+                        entreeX = ch;
+                        modeMenuEtape++;
+                    }
+                    if(ch >= 'a' && ch < 'a' + tailleGrille) {
+                        entreeX = ch - 'a' + 'A';
+                        modeMenuEtape++;
+                    }
+                }
+                else if(modeMenuEtape == 1) {
+                    if(ch >= '1' && ch < '1' + tailleGrille) {
+                        entreeY = ch;
+                        modeMenuActif = 0;
+                    }
+                    if(ch >= 113 && ch < 113 + tailleGrille) {
+                        entreeY = ch - 113 + '1';
+                        modeMenuActif = 0;
+                    }
+                    
+                    if(!modeMenuActif)
+                    {
+                        valeurJouable(solution, grilleData, tailleGrille, entreeX - 'A', tailleGrille - (entreeY - '1'));
+                        modeMenuEtape++;
+                        
+                        for(i = 0; i < menu_width - 2; i++)
+                        {
+                            mvwprintw(menu, NB_CASE_TAB + 4, i + 1, " ");
+                        }
+                        i = 0;
+                        while(solution[i] != 0)
+                        {
+                            mvwprintw(menu, NB_CASE_TAB + 4, 1 + i * 2, "%c,", solution[i]);
+                            i++;
+                        }
+                        
+                        
+                    }
+                }
+            }
         }
     } else {
         
@@ -287,6 +452,29 @@ void ui_afficherGrille(Tui *ui, Tjeu *jeu)
                     ElementCoup elementCoup = pileCoup_depile(pileCoup);
                     grilleData[elementCoup.abscisse + elementCoup.ordonnee * tailleGrille] = elementCoup.valeurPrecedente;
                 }
+            } else if(modeMenu == MODE_VOIR) {
+                modeMenuActif = 1;
+                entreeX = ' ';
+                entreeY = ' ';
+                modeMenuEtape = 0;
+            } else if(modeMenu == MODE_CHARGER) {
+                pileCoup_reset(pileCoup);
+                pileCoup_charger(pileCoup, &nbPropositionJoue, &tailleGrille, &(ui->indexGrille));
+
+                sudokuData = pileSud_get(ui->pileSudoku, ui->indexGrille);
+                
+                strcpy(grilleData, sudokuData->init);
+
+                ///Mise à jour de la grille avec les données de la pile chargée
+                ElementCoup elementTemp;
+                nbCaseHistorique = pileCoup_count(pileCoup);
+
+                for(i = nbCaseHistorique - 1; i >= 0; i--) {
+                    elementTemp = pileCoup_get(pileCoup, i);
+                    grilleData[elementTemp.abscisse + elementTemp.ordonnee * tailleGrille] = elementTemp.valeurSuivante;
+                }
+            } else if(modeMenu == MODE_SAUVEGARDER) {
+                pileCoup_sauvegarder(pileCoup, nbPropositionJoue, tailleGrille, ui->indexGrille);
             }
         }
     }

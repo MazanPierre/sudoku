@@ -25,8 +25,10 @@ int main(int argv, char *argc[])
   int paramG = valueExistInParam(argv, argc, "g");
   int paramS = valueExistInParam(argv, argc, "s");
   int paramU = valueExistInParam(argv, argc, "u");
+  int paramR = valueExistInParam(argv, argc, "r");
   int tailleGrille = 9;
   int indexGrille = 0;
+  int chargerGrille = 0;
   int unicode = 0;
   int i;
 
@@ -61,6 +63,11 @@ int main(int argv, char *argc[])
         {
           unicode = 1;
         }
+        
+        if(paramR > 0)
+        {
+            chargerGrille = 1;
+        }
 
         if(paramG > 0)
         {
@@ -84,7 +91,7 @@ int main(int argv, char *argc[])
               indexGrille = rand() % 8;
             }
             
-            Tui *ui = ui_new(indexGrille);
+            Tui *ui = ui_new(indexGrille, chargerGrille);
             Tjeu *jeu = NULL;
             ui_afficherGrille(ui, jeu);
             ui_free(ui);

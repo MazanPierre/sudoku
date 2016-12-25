@@ -11,17 +11,19 @@
 struct _Tui {
   PileSudoku *pileSudoku;
   int indexGrille;
+  int chargerGrille;
 };
 
 struct _Tjeu {
 };
 
-Tui *ui_new(int indexGrille)
+Tui *ui_new(int indexGrille, int chargerGrille)
 {
   Tui *ui = malloc(sizeof(Tui));
   
   ui->pileSudoku = chargerSudokuDB("sudoku-db.dat");
   ui->indexGrille = indexGrille;
+  ui->chargerGrille = chargerGrille;
   
   return ui;
 }
@@ -93,14 +95,14 @@ void ui_afficherGrille(Tui *ui, Tjeu *jeu)
 
           /// SAUVEGARDE
           else if(strcmp(lettreX, "!s") == 0){
-            sauvegarder(pileCoup, nbPropositionJoue, tailleGrille, ui->indexGrille);
+            pileCoup_sauvegarder(pileCoup, nbPropositionJoue, tailleGrille, ui->indexGrille);
             printf("\n------------------------    SAUVEGARDE REUSSIE    ------------------------");
           }
 
           /// CHARGEMENT
           else if(strcmp(lettreX, "!c") == 0){
             pileCoup_reset(pileCoup);
-            charger(pileCoup, &nbPropositionJoue, &tailleGrille, &(ui->indexGrille));
+            pileCoup_charger(pileCoup, &nbPropositionJoue, &tailleGrille, &(ui->indexGrille));
             nbPropositionJoue--;
 
             sudokuData = pileSud_get(ui->pileSudoku, ui->indexGrille);
